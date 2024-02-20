@@ -1,0 +1,183 @@
+:root {
+    --header-height: 2.857rem;
+
+    --c-light: #fefefc;
+    --c-dark: #100604;
+    --c-lighter-text: #302624;
+    --c-primary: #9B1D20;
+    --c-secondary: #180B5B;
+    --c-link: #009FB7;
+    --c-visited: #0d0630;
+    --c-highlight: #e9eced;
+    --c-aside: #E6CB9A;
+
+    --f-serif: 'Libre Baskerville', Baskerville, Cambria, Georgia, serif;
+    --f-title: 'Asap Condensed', 'Arial Narrow', Arial, sans-serif;
+    --f-body: 'Asap', Arial, sans-serif;;
+
+    font-size: 14px;
+    font-family: var(--f-body);
+    font-weight: 400;
+}
+
+@media screen and (max-width: 1919px) {
+    :root {
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 1439px) {
+    :root {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 1359px) {
+    :root {
+        font-size: 11px;
+    }
+}
+
+@media screen and (max-width: 1279px) {
+    :root {
+        font-size: 10px;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    :root {
+        font-size: 9px;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+::selection { 
+    background-color: var(--c-highlight);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+header {
+    height: var(--header-height);
+    padding: .5rem;
+    display: flex;
+    align-items: baseline;
+}
+
+a {
+    color: var(--c-link);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    outline: none;
+    cursor: pointer;
+}
+a:visited {
+    color: var(--c-visited);
+}
+a:focus {
+    background-color: var(--c-link);
+    color: var(--c-light);
+    border-color: var(--c-link);
+}
+a:hover {
+    border-bottom-width: 2px;
+}
+a:active {
+    background-color: var(--c-visited);
+    color: var(--c-light);
+    border-color: var(--c-visited);
+}
+h1 {
+    font-family: var(--f-title);
+    color: var(--c-primary);
+    font-weight: 500;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h1 {
+    font-size: 1.7rem;
+}
+
+.header-section {
+    display: flex;
+    align-items: baseline;
+    margin-right: 2rem;
+}
+
+#chart-container {
+    width: 100%;
+    height: calc(100% - var(--header-height));
+    min-height: 720px;
+}
+
+.header-section label, .header-section span {
+    color: var(--c-lighter-text);
+}
+
+#place-input {
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 1px;
+    margin: 0 .5rem;
+    border: 0;
+    border-bottom: 2px solid var(--c-link);
+    width: 14rem;
+    font-family: inherit;
+}
+
+#place-input:focus {
+    background-color: var(--c-link);
+    color: var(--c-light);
+    outline: none;
+}
+
+#place-input::selection {
+    background-color: var(--c-light);
+    color: var(--c-link);
+}
+
+#source-section {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.autocomplete {
+    background: var(--c-light);
+    z-index: 1000;
+    font-size: 1.15rem;
+    overflow: auto;
+    box-sizing: border-box;
+    box-shadow: 1px 1px 5px rgba(0,0,0,.5);
+}
+
+.autocomplete * {
+    font: inherit;
+    line-height: 1.75;
+}
+
+.autocomplete > div {
+    padding: 0 .28rem;
+}
+
+.autocomplete .group {
+    background: var(--c-highlight);
+    color: var(--c-lighter-text);
+    font-size: 1rem;
+    font-family: var(--f-title);
+}
+
+.autocomplete > div:hover:not(.group),
+.autocomplete > div.selected {
+    background: var(--c-aside);
+    cursor: pointer;
+}
