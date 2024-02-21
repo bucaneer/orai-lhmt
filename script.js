@@ -672,14 +672,31 @@ function initializePlaces(data) {
       : (a.group == b.group ? 0 : 1)
   });
 
+  place_input.addEventListener(
+    'focus',
+    (event) => {
+      let focus_value = place_input.value;
+      place_input.value = '';
+
+      place_input.addEventListener(
+        'blur',
+        (event) => {
+          if (place_input.value === '') {
+            place_input.value = focus_value;
+          }
+        },
+        {once: true}
+      );
+    }
+  );
+
   // Initialize input autocomplete
   autocomplete({
     input: place_input,
     fetch: (text, update) => {
       text = text.toLowerCase();
       var suggestions = places.filter(n => {
-        return n.group === city_group
-          || n.value.includes(text)
+        return n.value.includes(text)
           || n.label.toLowerCase().includes(text);
       })
       update(suggestions);

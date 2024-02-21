@@ -120,6 +120,10 @@ h1 {
     min-height: 720px;
 }
 
+#chart-container a {
+    border: 0;
+}
+
 .header-section label, .header-section span {
     color: var(--c-lighter-text);
 }
