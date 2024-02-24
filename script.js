@@ -210,37 +210,7 @@ function renderChart(data) {
     }
 
     if (day != prev_day) {
-      // Midnight marker
-      day_markers.push({
-        type: "line",
-        range: [date.setHours(0,0,0,0)],
-        valueRange: true,
-        lineColor: '#cccccc',
-        lineWidth: 2,
-      });
-
-      // Noon marker
-      day_markers.push({
-        type: "line",
-        range: [date.setHours(12,0,0,0)],
-        valueRange: true,
-        lineColor: 'white',
-        lineWidth: 2,
-      });
-
-      // Night range marker based on calculated sunset & sunrise times
-      let sunrise = +SunriseSunsetJS.getSunrise(coords.lat, coords.lng, date);
-      let prev_date = new Date(+date);
-      prev_date.setDate(date.getDate() - 1);
-      let prev_sunset = +SunriseSunsetJS.getSunset(coords.lat, coords.lng, prev_date);
-      day_markers.push({
-        type: 'area',
-        range: [prev_sunset, sunrise],
-        valueRange: true,
-        backgroundColor: '#431043',
-        alpha: .10,
-        zIndex: -10,
-      });
+      setDayMarkers(date);
     }
 
     prev_day = day;
@@ -248,6 +218,44 @@ function renderChart(data) {
     if (!min_ts) min_ts = timestamp;
     max_ts = timestamp;
   });
+
+  let next_day = new Date(max_ts);
+  next_day.setDate(next_day.getDate() + 1);
+  setDayMarkers(next_day);
+
+  function setDayMarkers(date) {
+    // Midnight marker
+    day_markers.push({
+      type: "line",
+      range: [date.setHours(0,0,0,0)],
+      valueRange: true,
+      lineColor: '#cccccc',
+      lineWidth: 2,
+    });
+
+    // Noon marker
+    day_markers.push({
+      type: "line",
+      range: [date.setHours(12,0,0,0)],
+      valueRange: true,
+      lineColor: 'white',
+      lineWidth: 2,
+    });
+
+    // Night range marker based on calculated sunset & sunrise times
+    let sunrise = +SunriseSunsetJS.getSunrise(coords.lat, coords.lng, date);
+    let prev_date = new Date(+date);
+    prev_date.setDate(date.getDate() - 1);
+    let prev_sunset = +SunriseSunsetJS.getSunset(coords.lat, coords.lng, prev_date);
+    day_markers.push({
+      type: 'area',
+      range: [prev_sunset, sunrise],
+      valueRange: true,
+      backgroundColor: '#431043',
+      alpha: .10,
+      zIndex: -10,
+    });
+  }
 
   if (current_condition) {
     setCurrentCondition(current_condition);
@@ -305,7 +313,7 @@ function renderChart(data) {
         label: {
           text: 'Temperatūra (°C)',
         },
-        offsetStart: '22%',
+        offsetStart: '15%',
       },
       scaleY2: {
         minValue: 0.5,
@@ -667,9 +675,7 @@ function initializePlaces(data) {
     if (a.group === city_group) return -1;
     if (b.group === city_group) return  1;
     
-    return a.group < b.group
-      ? -1
-      : (a.group == b.group ? 0 : 1)
+    return a.group.localeCompare(b.group, "lt");
   });
 
   place_input.addEventListener(
