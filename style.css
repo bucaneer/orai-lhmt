@@ -50,6 +50,12 @@
     }
 }
 
+@media screen and (max-width: 829px) {
+    :root {
+        --header-height: auto;
+    }
+}
+
 * {
     box-sizing: border-box;
 }
@@ -124,11 +130,11 @@ h1 {
     border: 0;
 }
 
-.header-section label, .header-section span {
+.header-section label, .header-section > span {
     color: var(--c-lighter-text);
 }
 
-#place-input {
+.search-input {
     font-size: 1.3rem;
     line-height: 1;
     padding: 1px;
@@ -139,18 +145,18 @@ h1 {
     font-family: inherit;
 }
 
-#place-input:focus {
+.search-input:focus {
     background-color: var(--c-link);
     color: var(--c-light);
     outline: none;
 }
 
-#place-input::selection {
+.search-input::selection {
     background-color: var(--c-light);
     color: var(--c-link);
 }
 
-#source-section {
+.header-section.source-section {
     margin-left: auto;
     margin-right: 0;
 }

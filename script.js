@@ -23,9 +23,17 @@
 'use strict';
 
 const chart_id = 'chart-container';
+const forecast_header_id = 'forecast-header';
+const observations_header_id = 'observations-header';
 const places = [];
+const stations = [];
+const modes = ['forecast', 'observations'];
 var place;
 var place_input;
+var station;
+var station_input;
+var coords;
+var mode = 'forecast';
 
 const chart_template = {
   type: "line",
@@ -172,7 +180,7 @@ function renderChart(data) {
       }
       return p;
     }, {});
-  let coords = {
+  coords = {
     lat: data.place.coordinates.latitude,
     lng: data.place.coordinates.longitude,
   };
@@ -205,7 +213,11 @@ function renderChart(data) {
       : item.conditionCode;
     let stagger = prev_ts && (timestamp - prev_ts) <= 3.6e6;
     condition_series[condition].push([timestamp, 1 + (stagger ? (i % 2) : 0)]);
-    if (!current_condition && timestamp > +new Date) {
+    if (!current_condition
+      && (timestamp > +new Date
+        || i == data.forecastTimestamps.length - 1
+      )
+    ) {
       current_condition = condition;
     }
 
@@ -682,12 +694,15 @@ function initializePlaces(data) {
     'focus',
     (event) => {
       let focus_value = place_input.value;
+      let focus_place = place;
       place_input.value = '';
 
       place_input.addEventListener(
         'blur',
         (event) => {
-          if (place_input.value === '') {
+          if (place_input.value === ''
+            || place === focus_place
+          ) {
             place_input.value = focus_value;
           }
         },
@@ -717,12 +732,89 @@ function initializePlaces(data) {
   updatePlaceLabel();
 }
 
+function initializeStations(data) {
+  data.forEach(item => {
+    stations.push({
+      value: item.code,
+      label: item.name,
+    });
+  });
+
+  station_input.addEventListener(
+    'focus',
+    (event) => {
+      let focus_value = station_input.value;
+      let focus_station = station;
+      station_input.value = '';
+
+      station_input.addEventListener(
+        'blur',
+        (event) => {
+          if (station_input.value === ''
+            || station === focus_station
+          ) {
+            station_input.value = focus_value;
+          }
+        },
+        {once: true}
+      );
+    }
+  );
+
+  // Initialize input autocomplete
+  autocomplete({
+    input: station_input,
+    fetch: (text, update) => {
+      text = text.toLowerCase();
+      var suggestions = stations.filter(n => {
+        return n.value.includes(text)
+          || n.label.toLowerCase().includes(text);
+      })
+      update(suggestions);
+    },
+    onSelect: item => {
+      setStation(item.value);
+      station_input.blur();
+    },
+    showOnFocus: true,
+  });
+
+  updateStationLabel();
+}
+
 function isNight(date, coords) {
   return date < SunriseSunsetJS.getSunrise(coords.lat, coords.lng, date)
       || date > SunriseSunsetJS.getSunset (coords.lat, coords.lng, date);
 }
 
+function setMode(new_mode) {
+  if (mode === new_mode || !modes.includes(new_mode)) return;
+
+  mode = new_mode;
+
+  let visible_id, hidden_id;
+
+  if (mode === 'forecast') {
+    visible_id = forecast_header_id;
+    hidden_id = observations_header_id;
+    if (!place) place = 'vilnius';
+    setPlace(place);
+  } else if (mode === 'observations') {
+    visible_id = observations_header_id;
+    hidden_id = forecast_header_id;
+    if (!station) station = 'vilniaus-ams';
+    setStation(station);
+  }
+
+  document.getElementById(hidden_id).style.display = 'none';
+  let header = document.getElementById(visible_id);
+  header.style.display = 'flex';
+  document.querySelector('head title').innerText = header.querySelector('.page-title').innerText;
+}
+
 function setPlace(new_place) {
+  setMode('forecast');
+
   place = new_place;
   fetchForecast();
 
@@ -731,8 +823,23 @@ function setPlace(new_place) {
   let url = new URL(document.location);
   url.hash = '#place:' + place;
   if (url.toString() !== document.location) {
-      updateURL(url.toString());
+    updateURL(url.toString());
   }
+}
+
+function setStation(new_station) {
+  setMode('observations');
+
+  station = new_station;
+  fetchObservations();
+
+  updateStationLabel();
+
+  let url = new URL(document.location);
+  url.hash = '#station:' + station;
+  if (url.toString() !== document.location) {
+    updateURL(url.toString());
+  } 
 }
 
 function setUpdatedAt(date) {
@@ -758,6 +865,11 @@ function updatePlaceLabel() {
   place_input.value = label;
 }
 
+function updateStationLabel() {
+  let label = (stations.find(i => i.value == station) || {}).label || station;
+  station_input.value = label;
+}
+
 function updateURL(url) {
   history.replaceState({}, "", url);
 }
@@ -770,6 +882,9 @@ function processURL(url) {
   switch (parts[0]) {
     case "#place":
       setPlace(parts[1]);
+    break;
+    case "#station":
+      setStation(parts[1]);
     break;
   }
 }
@@ -799,6 +914,20 @@ function compass(a) {
   return r + ', ' + a + '°'; 
 }
 
+/**
+ * Transform observations data object to forecasts format.
+ */
+function observationsToForecasts(data) {
+  data.place = data.station;
+  data.forecastCreationTimeUtc = data.observations[data.observations.length - 1].observationTimeUtc;
+  data.forecastTimestamps = data.observations.map((o) => {
+    o.forecastTimeUtc = o.observationTimeUtc;
+    o.totalPrecipitation = o.precipitation;
+    return o;
+  });
+  return data;
+}
+
 async function fetchForecast() {
   // CORS proxy for https://api.meteo.lt/v1/places/{$place}/forecasts/long-term
   let url = 'https://skilful-tiger-414908.lm.r.appspot.com/meteo/forecast/' + place;
@@ -809,6 +938,37 @@ async function fetchForecast() {
     .catch((err) => {
       console.log(err);
       alert('Nepavyko gauti prognozės!');
+    });
+}
+
+async function fetchObservations() {
+  // CORS proxy for https://api.meteo.lt/v1/stations/{$station}/observations/{$date}
+  let base_url = 'https://skilful-tiger-414908.lm.r.appspot.com/meteo/observations/' + station + '/';
+
+  // Fetch 7 days of observations
+  let date_promises = Array.from({length: 7}, (v,i) => {
+    let d = new Date;
+    d.setDate(d.getDate() - (6 - i));
+    let date_string = d.toISOString().split('T')[0];
+    return fetch(base_url + date_string, {cache: 'default'})
+      .then(response => response.json());
+  });
+
+  return Promise.all(date_promises)
+    .then(results => {
+      let data;
+      results.forEach(result => {
+        if (data === undefined) {
+          data = result;
+        } else {
+          data.observations = data.observations.concat(result.observations);
+        }
+      });
+      renderChart(observationsToForecasts(data));
+    })
+    .catch((err) => {
+      console.log('err');
+      alert('Nepavyko gauti faktinių orų!');
     });
 }
 
@@ -825,15 +985,35 @@ async function fetchPlaces() {
     });
 }
 
+async function fetchStations() {
+  // CORS proxy for https://api.meteo.lt/v1/stations
+  let url = 'https://skilful-tiger-414908.lm.r.appspot.com/meteo/stations';
+
+  return fetch(url, {cache: 'default'})
+    .then(response => response.json())
+    .then(data => initializeStations(data))
+    .catch((err) => {
+      console.log(err);
+      alert('Nepavyko gauti stočių sąrašo!');
+    });
+}
+
 window.addEventListener('load', async (event) => {
   place_input = document.getElementById('place-input');
+  station_input = document.getElementById('station-input');
 
   processURL(document.location);
-  if (!place) {
+  if (!place && !station) {
     setPlace("vilnius");
   }
 
   fetchPlaces();
+
+  fetchStations();
+});
+
+window.addEventListener('hashchange', (event) => {
+  processURL(document.location);
 });
 
 /**

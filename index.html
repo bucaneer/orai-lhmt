@@ -13,18 +13,39 @@
     <script src="assets/autocomplete.min.js"></script>
   </head>
   <body>
-    <header>
-      <div id="page-title" class="header-section">
-        <h1>Savaitės orų prognozė <small>pagal <a href="https://www.meteo.lt" title="Lietuvos hidrometeorologijos tarnyba" target="_blank">LHMT</a> duomenis</small></h1>
+    <header id="forecast-header">
+      <div class="header-section">
+        <h1><span class="page-title">Savaitės orų prognozė</span> <small>pagal <a href="https://www.meteo.lt" title="Lietuvos hidrometeorologijos tarnyba" target="_blank">LHMT</a> duomenis</small></h1>
       </div>
-      <div id="place-section" class="header-section">
+      <div class="header-section">
         <label for="place-input">Vietovė: </label>
-        <input type="text" id="place-input" name="place" value="Vilnius" placeholder="Paieška">
+        <input type="text" id="place-input" name="place" value="Vilnius" placeholder="Paieška" class="search-input">
       </div>
-      <div id="update-section" class="header-section">
+      <div class="header-section">
         <span>Prognozė sudaryta: <span id="updated-at">—</span>, kitas atnaujinimas: <span id="next-update">—</span>. <a href="javascript:void(0)" onclick="fetchForecast()">Perkrauti</a></span>
       </div>
-      <div id="source-section" class="header-section">
+      <div class="header-section">
+        <a href="javascript:void(0)" onclick="setMode('observations')">Faktiniai orai</a>
+      </div>
+      <div class="header-section source-section">
+        <a href="https://github.com/bucaneer/orai-lhmt">Atviras kodas</a>
+      </div>
+    </header>
+    <header id="observations-header" style="display: none">
+      <div class="header-section">
+        <h1><span class="page-title">Praėjusios savaitės orai</span> <small>pagal <a href="https://www.meteo.lt" title="Lietuvos hidrometeorologijos tarnyba" target="_blank">LHMT</a> duomenis</small></h1>
+      </div>
+      <div class="header-section">
+        <label for="station-input">Stotis: </label>
+        <input type="text" id="station-input" name="station" value="Vilniaus AMT" placeholder="Paieška" class="search-input">
+      </div>
+      <div class="header-section">
+        <a href="javascript:void(0)" onclick="fetchObservations()">Perkrauti</a></span>
+      </div>
+      <div class="header-section">
+        <a href="javascript:void(0)" onclick="setMode('forecast')">Prognozė</a>
+      </div>
+      <div class="header-section source-section">
         <a href="https://github.com/bucaneer/orai-lhmt">Atviras kodas</a>
       </div>
     </header>
