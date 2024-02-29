@@ -321,6 +321,9 @@ function renderChart(data) {
       type: 'mixed',
       height: '34%',
       y: '0%',
+      plotarea: {
+        marginTop: 14,
+      },
       scaleY: {
         label: {
           text: 'Temperatūra (°C)',
@@ -362,6 +365,7 @@ function renderChart(data) {
           },
           valueBox: {
             visible: false,
+            overlap: false,
             rules: [
               {
                 rule: '%plot-1-value > 0',
