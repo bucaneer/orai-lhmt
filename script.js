@@ -95,6 +95,9 @@ const chart_template = {
     guide: {
       lineColor: '#ffffff',
     },
+    item: {
+      width: 25,
+    },
   }
 };
 
@@ -437,6 +440,12 @@ function renderChart(data) {
           lineColor: red,
           marker: {
             backgroundColor: red,
+            rules: [
+              {
+                rule: '%plot-0-value == %plot-1-value',
+                visible: false,
+              },
+            ],
           },
         },
       ].concat(wind_arrow_series),  
