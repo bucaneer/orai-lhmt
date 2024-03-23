@@ -110,6 +110,7 @@ const condition_codes = {
   'thunder': {label: 'Perkūnija'},
   'isolated-thunderstorms': {label: 'Trumpas lietus su perkūnija'},
   'thunderstorms': {label: 'Lietus su perkūnija'},
+  'heavy-rain-with-thunderstorms': {label: 'Smarkus lietus su perkūnija'},
   'light-rain': {label: 'Nedidelis lietus'},
   'rain': {label: 'Lietus'},
   'heavy-rain': {label: 'Smarkus lietus'},
