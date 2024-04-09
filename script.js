@@ -216,13 +216,15 @@ function renderChart(data) {
       ? item.conditionCode + '-night'
       : item.conditionCode;
     let stagger = prev_ts && (timestamp - prev_ts) <= 3.6e6;
-    condition_series[condition].push([timestamp, 1 + (stagger ? (i % 2) : 0)]);
-    if (!current_condition
-      && (timestamp > +new Date
-        || i == data.forecastTimestamps.length - 1
-      )
-    ) {
-      current_condition = condition;
+    if (condition && condition_series[condition]) {
+      condition_series[condition].push([timestamp, 1 + (stagger ? (i % 2) : 0)]);
+      if (!current_condition
+        && (timestamp > +new Date
+          || i == data.forecastTimestamps.length - 1
+        )
+      ) {
+        current_condition = condition;
+      }
     }
 
     if (day != prev_day) {
@@ -981,7 +983,7 @@ async function fetchObservations() {
       renderChart(observationsToForecasts(data));
     })
     .catch((err) => {
-      console.log('err');
+      console.log(err);
       alert('Nepavyko gauti faktinių orų!');
     });
 }
