@@ -455,6 +455,11 @@ function renderChart(data) {
     }
   );
 
+  let precip_max = Math.max(
+    5,
+    precip.reduce((p,c) => Math.max(p, c[1]), 0)
+  );
+
   let precip_chart = mergeDeep(
     chart_template,
     {
@@ -470,11 +475,13 @@ function renderChart(data) {
         label: {
           text: "Kritulių kiekis (mm)",
         },
+        minValue: 0,
+        maxValue: precip_max,
       },
       scaleY2: {
         visible: false,
-        min: 0,
-        max: 100,
+        minValue: 0,
+        maxValue: 100,
         guide: {
           visible: false,
         },
