@@ -412,6 +412,11 @@ function renderChart(data) {
       };
     });
 
+  let wind_max = Math.max(
+    10,
+    wind_gust.reduce((p,c) => Math.max(p, c[1]), 0)
+  );
+
   let wind_chart = mergeDeep(
     chart_template,
     {
@@ -421,6 +426,8 @@ function renderChart(data) {
         label: {
           text: "Vėjo greitis (m/s)",
         },
+        minValue: 0,
+        maxValue: wind_max,
       },
       series: [
         {
