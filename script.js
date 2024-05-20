@@ -984,21 +984,31 @@ async function fetchObservations() {
       .then(response => response.json());
   });
 
-  return Promise.all(date_promises)
+  return Promise.allSettled(date_promises)
     .then(results => {
       let data;
+      let any_success = false;
       results.forEach(result => {
+        if (result.status === 'rejected') {
+          console.log(result.reason);
+          return;
+        }
+        if ('error' in result.value) {
+          console.log(result.value);
+          return;
+        }
+        any_success = true;
         if (data === undefined) {
-          data = result;
+          data = result.value;
         } else {
-          data.observations = data.observations.concat(result.observations);
+          data.observations = data.observations.concat(result.value.observations);
         }
       });
-      renderChart(observationsToForecasts(data));
-    })
-    .catch((err) => {
-      console.log(err);
-      alert('Nepavyko gauti faktinių orų!');
+      if (any_success) {
+        renderChart(observationsToForecasts(data));
+      } else {
+        alert('Nepavyko gauti faktinių orų!');
+      }
     });
 }
 
