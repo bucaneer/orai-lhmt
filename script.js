@@ -321,6 +321,11 @@ function renderChart(data) {
     })
     .filter(e => e !== null);
 
+  let min_temp = temperature.reduce((a, b) => Math.min(a, b[1]), 0);
+  let max_temp = temperature.reduce((a, b) => Math.max(a, b[1]), 0);
+
+  let temp_top_limit = (max_temp + min_temp) * 0.8;
+
   let temp_chart = mergeDeep(
     chart_template,
     {
@@ -379,6 +384,10 @@ function renderChart(data) {
                 backgroundColor: 'white',
                 shadow: false,
                 borderRadius: 2,
+              },
+              {
+                rule: '%plot-0-value > '+temp_top_limit,
+                placement: 'bottom',
               },
             ],
           },
