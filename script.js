@@ -324,7 +324,7 @@ function renderChart(data) {
   let min_temp = temperature.reduce((a, b) => Math.min(a, b[1]), 0);
   let max_temp = temperature.reduce((a, b) => Math.max(a, b[1]), 0);
 
-  let temp_top_limit = (max_temp + min_temp) * 0.8;
+  let temp_top_limit = (max_temp + min_temp) * 0.9;
 
   let temp_chart = mergeDeep(
     chart_template,
