@@ -531,14 +531,22 @@ function renderChart(data) {
     }
   );
 
+  let pressure_ref, pressure_min, pressure_max;
+  pressure_ref = pressure_min = pressure_max = 1013.25;
+  pressure.forEach((c) => {
+    pressure_min = Math.min(c[1], pressure_min);
+    pressure_max = Math.max(c[1], pressure_max);
+  });
+
   let pressure_chart = mergeDeep(
     chart_template,
     {
       type: 'mixed',
       y: '78%',
       scaleY: {
-        refValue: 1013.25,
-        minValue: 'auto',
+        refValue: pressure_ref,
+        minValue: pressure_min,
+        maxValue: pressure_max,
         label: {
           text: 'Slėgis (hPa)',
         },
